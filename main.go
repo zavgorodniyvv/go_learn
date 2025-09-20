@@ -41,4 +41,31 @@ func main() {
 
 	fmt.Println(person)
 
+	persons, err := getPersons(client)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	fmt.Println(persons)
+	persons.Count = 222
+
+	fmt.Println("print new count: ", persons.Count)
+}
+
+func getPersons(client *http.Client) (models.PersonsResponse, error) {
+	url := "https://swapi.dev/api/people/"
+	resp, err := client.Get(url)
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Could not read response")
+		return models.PersonsResponse{}, err
+	}
+
+	personResp := models.PersonsResponse{}
+	err = json.Unmarshal(body, &personResp)
+
+	return personResp, nil
 }
